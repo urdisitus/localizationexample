@@ -1,0 +1,126 @@
+<html>
+<head>
+<script
+src="http://maps.googleapis.com/maps/api/js">
+</script>
+
+<script>
+var myCenter=new google.maps.LatLng(51.508742,-0.120850);
+
+function initialize()
+{
+var mapProp = {
+  center: myCenter,
+  zoom:5,
+  mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+
+var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+var marker = new google.maps.Marker({
+  position: myCenter,
+  title:'Click to zoom'
+  });
+
+marker.setMap(map);
+
+// Zoom to 9 when clicking on marker
+google.maps.event.addListener(marker,'click',function() {
+  map.setZoom(9);
+  map.setCenter(marker.getPosition());
+  });
+}
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+</head>
+
+<body>
+<div id="googleMap" style="width:500px;height:380px;"></div>
+
+</body>
+<body>
+	<div id="nickname">
+		<div id="nickWrap">
+			<p>Enter a username:</p>
+			<p id= "nickError"></p>
+			<form id="setNick">
+				<input size="35" id="nickBox"></input>
+				<input type="submit"></input>
+			</form>
+		</div>
+	</div>
+	
+	<div id="contentWrap">
+		<div id="chatWrap">
+			<div id="chat"></div>
+			<form id="send-message">
+				<input size="35" id="message"></input>
+				<input type="submit"></input>
+			</form>
+		</div>
+		<div id="users"></div>
+		
+	</div>
+	
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		jQuery(function($){
+			var socket = io.connect();
+			var $messageForm = $('#send-message');
+			var $nickForm = $('#setNick');
+			var $nickError = $('#nickError');
+			var $users = $('#users');
+			var $nickBox = $('#nickBox');
+			var $messageBox = $('#message');
+			var $chat = $('#chat');
+			
+			$nickForm.submit(function(e){
+				e.preventDefault();
+				socket.emit('new user', $nickBox.val());
+				$nickBox.val('');
+			});
+			
+			$messageForm.submit(function(e){
+				e.preventDefault();
+				socket.emit('send message', $messageBox.val());
+				$messageBox.val('');
+			});
+			
+			socket.on('success login', function(data){
+				$('#nickWrap').hide();
+				$('#contentWrap').show();
+			});
+			
+			socket.on('error login', function(data){
+				$nickError.html(data);
+			});
+			
+			socket.on('success message', function(data){
+				
+			});
+			
+			socket.on('error message', function(data){
+				$chat.append('<span class="error">'+data+'</span><br/>');	
+			});
+			
+			socket.on('usernames', function(data){
+				var array = Object.keys(data);
+				var html = '';
+				for (i = 0;i< array.length;i++){
+					html+=array[i] +'<br/>';
+				}
+				$users.html(html);
+			});
+			
+			socket.on('new message', function(data){
+				$chat.append('<span class="msg"><b>' + data.nick + ': </b>' + data.msg + "</span><br/>");
+			});
+			
+			socket.on('whisper', function(data){
+				$chat.append('<span class="whisper"><b>' + data.nick + ': </b>' + data.msg + "</span><br/>");
+			});
+		});
+	</script>
+</body>
+</html>

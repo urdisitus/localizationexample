@@ -1,0 +1,19 @@
+{
+	"name":"geotest",
+	"subdomain": "geotest",
+  "author": "Gonzalo Ernesto Perez Moron <ernesto_06_05@hotmail.com>",
+  "scripts": {
+    "start": "app2.js"
+  },
+  "engines": {
+    "node": ">= 0.8.x"
+  },
+	"version":"0.0.1",
+	"private":true,
+	"dependencies":{
+		"socket.io":"1.0",
+		"node-static": "latest", 
+		"express":"4.11.2",
+		"body-parser": "~1.0.1"
+	}
+}
